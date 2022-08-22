@@ -4,6 +4,9 @@ from sqlalchemy.orm import sessionmaker
 
 from models import create_tables, Publisher, Shop, Book, Stock, Sale
 
+DSN = "postgresql://postgres:postgres@localhost:5432/netology_db"
+engine = sq.create_engine(DSN)
+
 class Database:
 
     def import_data_from_json(self):
@@ -18,13 +21,17 @@ class Database:
         get_query = input("Введите имя или id издателя: >")
         res = session.query(Publisher).filter(Publisher.id == get_query or Publisher.name == get_query)
         for i in res.all():
-            print(f'id: {i.id} Имя: {i.name}')
+            print(f'Издатель - id: {i.id} Имя: {i.name}')
+
+    def get_shop(self):
+        get_query = input("Введите имя или id издателя: >")
+        res = session.query(Shop).join(Stock).join(Book).join(Publisher).filter(Publisher.id == get_query or Publisher.name == get_query)
+        for i in res.all():
+            print(f'Магазин - id: {i.id} Имя: {i.name}')
 
 
 if __name__ == '__main__':
 
-    DSN = "postgresql://postgres:postgres@localhost:5432/netology_db"
-    engine = sq.create_engine(DSN)
     create_tables(engine)
 
     Session = sessionmaker(bind=engine)
@@ -33,3 +40,4 @@ if __name__ == '__main__':
     db = Database()
     db.import_data_from_json()
     db.get_publisher()
+    db.get_shop()
